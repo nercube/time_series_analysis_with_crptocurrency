@@ -1,0 +1,31 @@
+# --- UI ---
+streamlit
+plotly
+
+# --- Data ---
+numpy
+pandas
+
+# --- Finance data ---
+yfinance
+
+# --- ML / DL ---
+scikit-learn
+joblib
+tensorflow
+
+# --- Time series models ---
+pmdarima
+prophet
+cmdstanpy
+
+# --- NLP / Sentiment ---
+vaderSentiment
+
+# --- HTTP / APIs ---
+requests
+feedparser
+
+# --- Utils ---
+python-dateutil
+pytz
