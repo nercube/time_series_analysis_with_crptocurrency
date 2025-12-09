@@ -78,12 +78,6 @@ def utc_yesterday() -> dt.date:
 # --------------------------------------------------------------------------------------
 
 def fetch_btc_history() -> pd.DataFrame:
-    """
-    Fetch full daily BTC history from Yahoo Finance (OHLCV).
-
-    Ensures a flat, single-level column index so downstream code
-    always sees columns like: 'Open','High','Low','Close','Volume',...
-    """
     df = yf.download(
         TICKER,
         period="max",
@@ -91,19 +85,19 @@ def fetch_btc_history() -> pd.DataFrame:
         auto_adjust=False,
         progress=False,
     )
-    print("[DEBUG] Raw yfinance columns:", df.columns.tolist())
     if df.empty:
         raise RuntimeError("yfinance returned empty BTC-USD history.")
 
     # Ensure datetime index (UTC-naive)
     df.index = pd.to_datetime(df.index).tz_localize(None)
 
-    # Flatten MultiIndex columns if present
+    # ✅ FIXED: flatten MultiIndex correctly
     if isinstance(df.columns, pd.MultiIndex):
         flat_cols = []
         for col in df.columns:
             if isinstance(col, tuple):
-                name = next((x for x in col[::-1] if x not in (None, "")), col[-1])
+                # take the FIRST non-empty element = 'Adj Close', 'Close', 'High', ...
+                name = next((x for x in col if x not in (None, "")), col[0])
                 flat_cols.append(str(name))
             else:
                 flat_cols.append(str(col))
@@ -599,4 +593,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
