@@ -91,6 +91,7 @@ def fetch_btc_history() -> pd.DataFrame:
         auto_adjust=False,
         progress=False,
     )
+    print("[DEBUG] Raw yfinance columns:", df.columns.tolist())
     if df.empty:
         raise RuntimeError("yfinance returned empty BTC-USD history.")
 
@@ -598,3 +599,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
