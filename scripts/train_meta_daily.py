@@ -193,8 +193,10 @@ def load_main_models():
     arima_model = joblib.load(ARIMA_PATH)
     prophet_model = joblib.load(PROPHET_PATH)
 
-    # Let Keras restore the training config so we can call .fit()
-    lstm_model = load_model(LSTM_MODEL_PATH)  # compile=True by default
+    # Load WITHOUT training config, then compile explicitly
+    lstm_model = load_model(LSTM_MODEL_PATH, compile=False)
+    lstm_model.compile(optimizer="adam", loss="mse")  # same as your original training
+
     lstm_scaler = joblib.load(LSTM_SCALER_PATH)
     lstm_feature_cols = joblib.load(LSTM_FEATURES_PATH)
     return arima_model, prophet_model, lstm_model, lstm_scaler, lstm_feature_cols
@@ -603,6 +605,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
