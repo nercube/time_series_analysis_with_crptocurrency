@@ -78,6 +78,10 @@ def utc_yesterday() -> dt.date:
 # --------------------------------------------------------------------------------------
 
 def fetch_btc_history() -> pd.DataFrame:
+    """
+    Fetch full daily BTC history from Yahoo Finance (OHLCV) and force
+    columns to ['Adj Close', 'Close', 'High', 'Low', 'Open', 'Volume'].
+    """
     df = yf.download(
         TICKER,
         period="max",
@@ -91,50 +95,33 @@ def fetch_btc_history() -> pd.DataFrame:
     # Ensure datetime index (UTC-naive)
     df.index = pd.to_datetime(df.index).tz_localize(None)
 
-    # ✅ FIXED: flatten MultiIndex correctly
+    # If MultiIndex (Price, Ticker) like your notebook output
     if isinstance(df.columns, pd.MultiIndex):
-        flat_cols = []
-        for col in df.columns:
-            if isinstance(col, tuple):
-                # take the FIRST non-empty element = 'Adj Close', 'Close', 'High', ...
-                name = next((x for x in col if x not in (None, "")), col[0])
-                flat_cols.append(str(name))
-            else:
-                flat_cols.append(str(col))
-        df.columns = flat_cols
+        # yfinance order for single ticker BTC-USD is:
+        # ('Adj Close','BTC-USD'), ('Close','BTC-USD'), ('High','BTC-USD'),
+        # ('Low','BTC-USD'), ('Open','BTC-USD'), ('Volume','BTC-USD')
+        if len(df.columns) == 6:
+            df.columns = ["Adj Close", "Close", "High", "Low", "Open", "Volume"]
+        else:
+            # generic flatten: join all levels as string
+            df.columns = ["_".join(map(str, c)) for c in df.columns]
     else:
+        # Single-level index: make sure they are strings
         df.columns = [str(c) for c in df.columns]
 
+    print("[DEBUG] fetch_btc_history columns:", list(df.columns))
     return df
 
 
 def get_close_for_date(df: pd.DataFrame, target_date: dt.date) -> float:
-    """Get the close price for a specific UTC date (robust to column naming)."""
+    """Get the Close price for a specific UTC date."""
     day_rows = df.loc[df.index.date == target_date]
     if day_rows.empty:
         raise ValueError(f"No BTC data for date {target_date}")
 
-    cols = list(day_rows.columns)
+    print("[DEBUG] get_close_for_date columns:", list(day_rows.columns))
 
-    # 1) Prefer exact 'Close'
-    if "Close" in day_rows.columns:
-        close_col = "Close"
-    else:
-        # 2) Fallback: any column that looks like a close price
-        close_candidates = [c for c in cols if "close" in str(c).lower()]
-        if not close_candidates:
-            raise RuntimeError(
-                f"No 'Close'-like column found for date {target_date}. "
-                f"Columns: {cols}"
-            )
-        close_col = close_candidates[0]
-        print(
-            f"[WARN] 'Close' not found, using '{close_col}' as close column "
-            f"for date {target_date}"
-        )
-
-    print("[DEBUG] get_close_for_date columns:", cols, "chosen:", close_col)
-    return float(day_rows[close_col].iloc[0])
+    return float(day_rows["Close"].iloc[0])
 
 
 # --------------------------------------------------------------------------------------
@@ -615,6 +602,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
