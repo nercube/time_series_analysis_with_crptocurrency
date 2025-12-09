@@ -133,6 +133,7 @@ def get_close_for_date(df: pd.DataFrame, target_date: dt.date) -> float:
             f"for date {target_date}"
         )
 
+    print("[DEBUG] get_close_for_date columns:", cols, "chosen:", close_col)
     return float(day_rows[close_col].iloc[0])
 
 
@@ -614,6 +615,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
