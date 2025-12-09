@@ -109,11 +109,32 @@ def fetch_btc_history() -> pd.DataFrame:
 
 
 def get_close_for_date(df: pd.DataFrame, target_date: dt.date) -> float:
-    """Get the Close price for a specific UTC date."""
+    """Get the close price for a specific UTC date (robust to column naming)."""
     day_rows = df.loc[df.index.date == target_date]
     if day_rows.empty:
         raise ValueError(f"No BTC data for date {target_date}")
-    return float(day_rows["Close"].iloc[0])
+
+    cols = list(day_rows.columns)
+
+    # 1) Prefer exact 'Close'
+    if "Close" in day_rows.columns:
+        close_col = "Close"
+    else:
+        # 2) Fallback: any column that looks like a close price
+        close_candidates = [c for c in cols if "close" in str(c).lower()]
+        if not close_candidates:
+            raise RuntimeError(
+                f"No 'Close'-like column found for date {target_date}. "
+                f"Columns: {cols}"
+            )
+        close_col = close_candidates[0]
+        print(
+            f"[WARN] 'Close' not found, using '{close_col}' as close column "
+            f"for date {target_date}"
+        )
+
+    return float(day_rows[close_col].iloc[0])
+
 
 # --------------------------------------------------------------------------------------
 # YAHOO FINANCE: NEWS → SENTIMENT
@@ -593,5 +614,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
