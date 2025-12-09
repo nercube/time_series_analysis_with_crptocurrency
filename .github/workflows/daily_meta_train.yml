@@ -24,4 +24,5 @@ jobs:
 
       - name: Run daily meta training
         run: |
-          python scripts/train_meta_daily.py
+            python -c "import inspect, scripts.train_meta_daily as m; print('=== get_close_for_date SOURCE ==='); print(inspect.getsource(m.get_close_for_date)); print('=== END SOURCE ===')"
+            python scripts/train_meta_daily.py
