@@ -1,31 +1,31 @@
 # --- UI ---
-streamlit
-plotly
+streamlit==1.44.1
+plotly==5.24.1
 
-# --- Data ---
-numpy
-pandas
+# --- Core Data ---
+numpy==1.26.4
+pandas==2.2.3
 
-# --- Finance data ---
-yfinance
+# --- Finance ---
+yfinance==0.2.54
 
 # --- ML / DL ---
-scikit-learn
-joblib
-tensorflow
+scikit-learn==1.5.2
+joblib==1.4.2
+tensorflow==2.17.1
 
-# --- Time series models ---
-pmdarima
-prophet
-cmdstanpy
+# --- Time Series ---
+pmdarima==2.0.4
+prophet==1.1.6
+cmdstanpy==1.2.5
 
 # --- NLP / Sentiment ---
-vaderSentiment
+vaderSentiment==3.3.2
 
-# --- HTTP / APIs ---
-requests
-feedparser
+# --- APIs ---
+requests==2.32.3
+feedparser==6.0.11
 
-# --- Utils ---
-python-dateutil
-pytz
+# --- Utilities ---
+python-dateutil==2.9.0.post0
+pytz==2024.2
